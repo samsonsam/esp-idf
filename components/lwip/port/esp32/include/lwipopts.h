@@ -651,6 +651,11 @@
 #if PPP_SUPPORT
 
 /**
+ * PPP_SERVER==1: Enable PPP server.
+ */
+#define PPP_SERVER                     CONFIG_LWIP_PPP_SERVER
+
+/**
  * PPP_IPV6_SUPPORT == 1: Enable IPV6 support for local link
  * between modem and lwIP stack.
  * Some modems do not support IPV6 addressing in local link and
