@@ -546,6 +546,13 @@ menu "LWIP"
 
             PPP over serial support is experimental and unsupported.
 
+    config LWIP_PPP_SERVER
+        bool "Enable PPP server support (new/experimental)"
+        depends on LWIP_PPP_SUPPORT
+        default n
+        help
+            Enable PPP server. Only PPP server over serial is possible.
+
     config LWIP_IPV6_MEMP_NUM_ND6_QUEUE
         int "Max number of IPv6 packets to queue during MAC resolution"
         range 3 20

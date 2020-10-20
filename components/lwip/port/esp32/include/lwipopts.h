@@ -615,6 +615,11 @@
 #if PPP_SUPPORT
 
 /**
+ * PPP_SERVER==1: Enable PPP server.
+ */
+#define PPP_SERVER                     CONFIG_LWIP_PPP_SERVER
+
+/**
  * PPP_NOTIFY_PHASE==1: Support PPP notify phase.
  */
 #define PPP_NOTIFY_PHASE                CONFIG_LWIP_PPP_NOTIFY_PHASE_SUPPORT
