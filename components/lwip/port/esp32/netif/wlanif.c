@@ -52,6 +52,8 @@
 
 #include "tcpip_adapter.h"
 
+#include "bridge.h"
+
 /**
  * @brief Free resources allocated in L2 layer
  *
@@ -62,7 +64,7 @@
  */
 static void wlanif_free_rx_buf_l2(struct netif *netif, void *buf)
 {
-    esp_wifi_internal_free_rx_buffer(buf);
+  esp_wifi_internal_free_rx_buffer(buf);
 }
 
 /**
@@ -126,19 +128,26 @@ low_level_output(struct netif *netif, struct pbuf *p)
   struct pbuf *q = p;
   err_t ret;
 
-  if (wifi_if >= ESP_IF_MAX) {
+  if (wifi_if >= ESP_IF_MAX)
+  {
     return ERR_IF;
   }
 
-  if(q->next == NULL) {
+  if (q->next == NULL)
+  {
     ret = esp_wifi_internal_tx(wifi_if, q->payload, q->len);
-  } else {
+  }
+  else
+  {
     LWIP_DEBUGF(PBUF_DEBUG, ("low_level_output: pbuf is a list, application may has bug"));
     q = pbuf_alloc(PBUF_RAW_TX, p->tot_len, PBUF_RAM);
-    if (q != NULL) {
+    if (q != NULL)
+    {
       q->l2_owner = NULL;
       pbuf_copy(q, p);
-    } else {
+    }
+    else
+    {
       return ERR_MEM;
     }
     ret = esp_wifi_internal_tx(wifi_if, q->payload, q->len);
@@ -158,12 +167,14 @@ low_level_output(struct netif *netif, struct pbuf *p)
  * @param netif the lwip network interface structure for this ethernetif
  */
 void ESP_IRAM_ATTR
-wlanif_input(struct netif *netif, void *buffer, u16_t len, void* eb)
+wlanif_input(struct netif *netif, void *buffer, u16_t len, void *eb)
 {
   struct pbuf *p;
 
-  if(!buffer || !netif_is_up(netif)) {
-    if (eb) {
+  if (!buffer || !netif_is_up(netif))
+  {
+    if (eb)
+    {
       esp_wifi_internal_free_rx_buffer(eb);
     }
     return;
@@ -171,7 +182,8 @@ wlanif_input(struct netif *netif, void *buffer, u16_t len, void* eb)
 
 #if (ESP_L2_TO_L3_COPY == 1)
   p = pbuf_alloc(PBUF_RAW, len, PBUF_RAM);
-  if (p == NULL) {
+  if (p == NULL)
+  {
     esp_wifi_internal_free_rx_buffer(eb);
     return;
   }
@@ -180,7 +192,8 @@ wlanif_input(struct netif *netif, void *buffer, u16_t len, void* eb)
   esp_wifi_internal_free_rx_buffer(eb);
 #else
   p = pbuf_alloc(PBUF_RAW, len, PBUF_REF);
-  if (p == NULL){
+  if (p == NULL)
+  {
     esp_wifi_internal_free_rx_buffer(eb);
     return;
   }
@@ -189,12 +202,17 @@ wlanif_input(struct netif *netif, void *buffer, u16_t len, void* eb)
   p->l2_buf = eb;
 #endif
 
+  if(bridge_input_cb_wifi(p, netif) != ERR_RTE)
+  {
+    return;
+  }
+
   /* full packet send to tcpip_thread to process */
-  if (netif->input(p, netif) != ERR_OK) {
+  if (netif->input(p, netif) != ERR_OK)
+  {
     LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
     pbuf_free(p);
   }
-
 }
 
 /**
@@ -209,8 +227,7 @@ wlanif_input(struct netif *netif, void *buffer, u16_t len, void* eb)
  *         ERR_MEM if private data couldn't be allocated
  *         any other err_t on error
  */
-err_t
-wlanif_init(struct netif *netif)
+err_t wlanif_init(struct netif *netif)
 {
   LWIP_ASSERT("netif != NULL", (netif != NULL));
 
@@ -248,16 +265,16 @@ wlanif_init(struct netif *netif)
   return ERR_OK;
 }
 
-err_t wlanif_init_sta(struct netif *netif) {
+err_t wlanif_init_sta(struct netif *netif)
+{
   netif->name[0] = 's';
   netif->name[1] = 't';
   return wlanif_init(netif);
 }
 
-err_t wlanif_init_ap(struct netif *netif) {
+err_t wlanif_init_ap(struct netif *netif)
+{
   netif->name[0] = 'a';
   netif->name[1] = 'p';
   return wlanif_init(netif);
 }
-
-
