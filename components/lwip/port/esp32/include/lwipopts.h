@@ -844,7 +844,7 @@
  * DHCP_DEBUG: Enable debugging in dhcp.c.
  */
 #define DHCP_DEBUG                      LWIP_DBG_OFF
-#define LWIP_DEBUG                      LWIP_DBG_OFF
+#define LWIP_DEBUG                      LWIP_DBG_ON
 #define TCP_DEBUG                       LWIP_DBG_OFF
 
 #define CHECKSUM_CHECK_UDP              0
